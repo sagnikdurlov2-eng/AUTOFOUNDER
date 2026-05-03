@@ -1,42 +1,52 @@
-# Auto-Founder AI 🚀
+# AI Startup Builder (MERN Stack)
 
-An automated startup architect that generates a comprehensive roadmap from a single idea using Gemini 1.5 Flash.
+A full-stack application that transforms startup ideas into structured concepts using Gemini AI and a simulated multi-agent system.
 
-## Project Structure
-This project is divided into two main components:
+## Tech Stack
+- **Frontend**: Next.js 14+, TypeScript, Tailwind CSS, Framer Motion
+- **Backend**: Node.js, Express, Mongoose
+- **Database**: MongoDB
+- **AI**: Google Gemini API
 
-- **`/backend`**: Express + TypeScript server handling API logic and Gemini integration.
-- **`/frontend`**: Vite + TypeScript application with a Brutalist Terminal UI.
+## Prerequisites
+- Node.js installed
+- MongoDB installed and running locally (or a remote URI)
+- Google Gemini API Key (Get it from [Google AI Studio](https://aistudio.google.com/))
 
-## Setup & Running
+## Setup Instructions
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/sagnikdurlov2-eng/AUTOFOUNDER.git
-cd AUTOFOUNDER
-```
-
-### 2. Configure Backend
+### 1. Backend Setup
 ```bash
 cd backend
 npm install
-# Create a .env file with your GEMINI_API_KEY
-npm run dev
 ```
-
-### 3. Configure Frontend
+Create a `.env` file in the `backend` directory:
+```env
+PORT=5001
+GEMINI_API_KEY=your_gemini_api_key
+MONGO_URI=mongodb://localhost:27017/ai-startup-builder
+```
+Start the backend:
 ```bash
-cd ../frontend
+node index.js
+```
+
+### 2. Frontend Setup
+```bash
+cd frontend
 npm install
+```
+Start the frontend:
+```bash
 npm run dev
 ```
 
-## Features
-- **Brutalist Terminal UI**: High-contrast, hacker-style interface.
-- **TypeScript Everywhere**: Type-safe frontend and backend.
-- **Real-time Simulation**: Watch AI agents build your startup step-by-step.
-- **Gemini 1.5 Flash**: Powered by Google's latest high-speed model.
+## How to Use
+1. Open [http://localhost:3000](http://localhost:3000) in your browser.
+2. Enter your startup idea in the input box.
+3. Watch the multi-agent simulation (Validator, Market, UI, Dev, Pitch).
+4. View the generated results and copy the code if needed.
 
-## Tech Stack
-- **Backend**: Node.js, Express, TypeScript, Gemini SDK
-- **Frontend**: Vite, TypeScript, Vanilla CSS
+## Project Structure
+- `/frontend`: Next.js application with Tailwind CSS and Framer Motion.
+- `/backend`: Express server with Gemini API integration and MongoDB storage.
