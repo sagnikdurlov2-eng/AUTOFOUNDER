@@ -1,8 +1,7 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const path = require('path');
+import express, { Request, Response } from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 dotenv.config();
 
@@ -10,14 +9,22 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Initialize Gemini API
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const apiKey = process.env.GEMINI_API_KEY;
+if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is not defined in environment variables');
+}
+
+const genAI = new GoogleGenerativeAI(apiKey);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
 
-app.post('/generate', async (req, res) => {
+interface GenerateRequest {
+    idea: string;
+}
+
+app.post('/generate', async (req: Request<{}, {}, GenerateRequest>, res: Response) => {
     const { idea } = req.body;
 
     if (!idea) {
@@ -58,12 +65,12 @@ Keep answers concise but useful. Use markdown formatting within sections if need
         const text = response.text();
 
         res.json({ result: text });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Gemini API Error:', error);
         res.status(500).json({ error: 'Failed to generate startup plan. Check if your API key is correct.' });
     }
 });
 
 app.listen(port, () => {
-    console.log(`Auto-Founder AI server running at http://localhost:${port}`);
+    console.log(`[SERVER]: Auto-Founder AI backend running at http://localhost:${port}`);
 });

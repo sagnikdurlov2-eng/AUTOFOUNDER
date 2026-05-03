@@ -1,11 +1,20 @@
-const ideaInput = document.getElementById('startup-idea');
-const buildBtn = document.getElementById('build-btn');
-const agentSim = document.getElementById('agent-simulation');
-const outputSection = document.getElementById('output-section');
-const logsContainer = document.getElementById('logs');
-const cardsContainer = document.getElementById('cards-container');
+import './style.css'
 
-const agentLogs = [
+const ideaInput = document.getElementById('startup-idea') as HTMLInputElement;
+const buildBtn = document.getElementById('build-btn') as HTMLButtonElement;
+const agentSim = document.getElementById('agent-simulation') as HTMLElement;
+const outputSection = document.getElementById('output-section') as HTMLElement;
+const logsContainer = document.getElementById('logs') as HTMLElement;
+const cardsContainer = document.getElementById('cards-container') as HTMLElement;
+
+const BACKEND_URL = 'http://localhost:3000';
+
+interface AgentLog {
+    agent: string;
+    message: string;
+}
+
+const agentLogs: AgentLog[] = [
     { agent: 'VALIDATOR', message: 'CHECKING_IDEA_VIABILITY...' },
     { agent: 'MARKET_ANALYST', message: 'ANALYZING_TRENDS_AND_COMPETITORS...' },
     { agent: 'UI_DESIGNER', message: 'ARCHITECTING_INTERFACE_SYSTEMS...' },
@@ -13,18 +22,18 @@ const agentLogs = [
     { agent: 'PITCH_CREATOR', message: 'SYNTHESIZING_STRATEGIC_NARRATIVE...' }
 ];
 
-buildBtn.addEventListener('click', async () => {
-    const idea = ideaInput.value.trim();
+buildBtn?.addEventListener('click', async () => {
+    const idea = ideaInput?.value.trim();
     if (!idea) return;
 
     // Reset UI
     buildBtn.disabled = true;
-    outputSection.classList.add('hidden');
-    agentSim.classList.remove('hidden');
+    outputSection?.classList.add('hidden');
+    agentSim?.classList.remove('hidden');
     logsContainer.innerHTML = '';
     cardsContainer.innerHTML = '';
 
-    // Step 1: Simulate Logs (Terminal Style)
+    // Step 1: Simulate Logs
     for (const log of agentLogs) {
         await addLog(log.agent, log.message);
         await sleep(600);
@@ -34,7 +43,7 @@ buildBtn.addEventListener('click', async () => {
 
     // Step 2: Call API
     try {
-        const response = await fetch('/generate', {
+        const response = await fetch(`${BACKEND_URL}/generate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idea })
@@ -47,11 +56,11 @@ buildBtn.addEventListener('click', async () => {
         await sleep(500);
 
         // Step 3: Parse and Display Results
-        agentSim.classList.add('hidden');
-        outputSection.classList.remove('hidden');
+        agentSim?.classList.add('hidden');
+        outputSection?.classList.remove('hidden');
         displayResults(data.result);
         
-    } catch (error) {
+    } catch (error: any) {
         await addLog('ERROR', error.message.toUpperCase());
         buildBtn.disabled = false;
     } finally {
@@ -59,21 +68,21 @@ buildBtn.addEventListener('click', async () => {
     }
 });
 
-async function addLog(agent, message) {
+async function addLog(agent: string, message: string) {
     const div = document.createElement('div');
     div.className = 'log-entry';
     const timestamp = new Date().toLocaleTimeString('en-GB', { hour12: false });
     div.innerHTML = `<span class="log-status">[${timestamp}]</span> <span class="log-agent">${agent}</span>: ${message}`;
-    logsContainer.appendChild(div);
-    logsContainer.scrollTop = logsContainer.scrollHeight;
+    logsContainer?.appendChild(div);
+    if (logsContainer) logsContainer.scrollTop = logsContainer.scrollHeight;
 }
 
-function sleep(ms) {
+function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function displayResults(text) {
-    const sections = {
+async function displayResults(text: string) {
+    const sections: Record<string, { title: string, icon: string }> = {
         VALIDATION: { title: 'VALIDATION_REPORT', icon: '[V]' },
         MARKET: { title: 'MARKET_ANALYSIS', icon: '[M]' },
         UI: { title: 'UI_SPECIFICATION', icon: '[U]' },
@@ -89,12 +98,12 @@ async function displayResults(text) {
         
         if (sections[key]) {
             await createCard(sections[key], content);
-            await sleep(300); // Stagger card appearance
+            await sleep(300);
         }
     }
 }
 
-async function createCard(meta, content) {
+async function createCard(meta: { title: string, icon: string }, content: string) {
     const card = document.createElement('div');
     card.className = 'card';
     
@@ -103,42 +112,44 @@ async function createCard(meta, content) {
             <span>${meta.icon} ${meta.title}</span>
             <span>ID_${Math.floor(Math.random() * 10000)}</span>
         </div>
-        <div class="card-content" id="card-${meta.title}"></div>
+        <div class="card-content"></div>
     `;
     
-    cardsContainer.appendChild(card);
-    const contentArea = card.querySelector('.card-content');
+    cardsContainer?.appendChild(card);
+    const contentArea = card.querySelector('.card-content') as HTMLElement;
     
-    // Typewriter effect
     await typeWriter(contentArea, content);
 }
 
-async function typeWriter(element, text) {
+async function typeWriter(element: HTMLElement, text: string) {
     let i = 0;
-    const speed = 5; // ms per character
+    const speed = 5;
     
-    // Check if it's the code section to handle formatting
-    const isCode = text.includes('```') || text.length > 500; 
-
-    // Simple markdown code block detection and handling
     let processedText = text;
     let hasCode = false;
 
     if (processedText.includes('```')) {
         hasCode = true;
-        processedText = processedText.replace(/```(?:\w+)?([\s\S]*?)```/g, (match, code) => {
-            return `<code id="code-block-${Math.random().toString(36).substr(2, 9)}">${code.trim()}<button class="copy-btn" onclick="copyCode(this)">[ COPY ]</button></code>`;
+        processedText = processedText.replace(/```(?:\w+)?([\s\S]*?)```/g, (_match, code) => {
+            return `<code>${code.trim()}<button class="copy-btn" data-code="${btoa(code.trim())}">[ COPY ]</button></code>`;
         });
     }
 
-    // Since we are adding HTML, we can't do a simple char-by-char if we want formatting.
-    // For this brutalist style, we'll just inject it and maybe animate the opacity or something,
-    // OR we do a hybrid approach. Let's do char-by-char for the plain text version.
-    
     if (hasCode) {
         element.innerHTML = processedText;
+        // Re-attach copy listeners
+        element.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.target as HTMLButtonElement;
+                const code = atob(target.dataset.code || '');
+                navigator.clipboard.writeText(code);
+                const originalText = target.textContent;
+                target.textContent = '[ COPIED ]';
+                setTimeout(() => target.textContent = originalText, 2000);
+            });
+        });
     } else {
-        return new Promise(resolve => {
+        return new Promise<void>(resolve => {
             function type() {
                 if (i < text.length) {
                     element.textContent += text.charAt(i);
@@ -152,13 +163,6 @@ async function typeWriter(element, text) {
         });
     }
 }
-
-window.copyCode = (btn) => {
-    const code = btn.parentElement.innerText.replace('[ COPY ]', '').trim();
-    navigator.clipboard.writeText(code);
-    btn.textContent = '[ COPIED ]';
-    setTimeout(() => btn.textContent = '[ COPY ]', 2000);
-};
 
 // Initial system message
 window.onload = () => {

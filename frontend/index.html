@@ -4,52 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AUTO-FOUNDER // SYSTEM_CONSOLE</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <pre class="ascii-logo">
+    <div id="app">
+        <div class="container">
+            <header>
+                <pre class="ascii-logo">
  █████╗ ██╗   ██╗████████╗ ██████╗       ███████╗ ██████╗ ██╗   ██╗███╗   ██╗██████╗ ███████╗██████╗ 
 ██╔══██╗██║   ██║╚══██╔══╝██╔═══██╗      ██╔════╝██╔═══██╗██║   ██║████╗  ██║██╔══██╗██╔════╝██╔══██╗
 ███████║██║   ██║   ██║   ██║   ██║█████╗█████╗  ██║   ██║██║   ██║██╔██╗ ██║██║  ██║█████╗  ██████╔╝
 ██╔══██║██║   ██║   ██║   ██║   ██║╚════╝██╔══╝  ██║   ██║██║   ██║██║╚██╗██║██║  ██║██╔══╝  ██╔══██╗
 ██║  ██║╚██████╔╝   ██║   ╚██████╔╝      ██║     ╚██████╔╝╚██████╔╝██║ ╚████║██████╔╝███████╗██║  ██║
 ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝       ╚═╝      ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚═════╝ ╚══════╝╚═╝  ╚═╝
-            </pre>
-            <p class="subtitle">AUTOMATED_STARTUP_ARCHITECT_v1.0.4</p>
-        </header>
+                </pre>
+                <p class="subtitle">AUTOMATED_STARTUP_ARCHITECT_v1.0.4</p>
+            </header>
 
-        <main>
-            <section class="input-section">
-                <div class="input-group">
-                    <span class="prompt">guest@auto-founder:~$</span>
-                    <input type="text" id="startup-idea" placeholder="INITIATE_IDEA..." autocomplete="off" autofocus>
-                    <button id="build-btn">[ BUILD_STARTUP ]</button>
-                </div>
-            </section>
+            <main>
+                <section class="input-section">
+                    <div class="input-group">
+                        <span class="prompt">guest@auto-founder:~$</span>
+                        <input type="text" id="startup-idea" placeholder="INITIATE_IDEA..." autocomplete="off" autofocus>
+                        <button id="build-btn">[ BUILD_STARTUP ]</button>
+                    </div>
+                </section>
 
-            <section id="agent-simulation" class="hidden">
-                <div class="logs-container" id="logs">
-                    <!-- SYSTEM_LOGS -->
-                </div>
-            </section>
+                <section id="agent-simulation" class="hidden">
+                    <div class="logs-container" id="logs">
+                        <!-- SYSTEM_LOGS -->
+                    </div>
+                </section>
 
-            <section id="output-section" class="hidden">
-                <div class="cards-grid" id="cards-container">
-                    <!-- DATA_OUTPUT -->
-                </div>
-            </section>
-        </main>
+                <section id="output-section" class="hidden">
+                    <div class="cards-grid" id="cards-container">
+                        <!-- DATA_OUTPUT -->
+                    </div>
+                </section>
+            </main>
 
-        <footer style="margin-top: auto; padding-top: 20px; border-top: 1px dashed var(--border-color); font-size: 0.8rem; color: var(--fg-muted);">
-            <p>CONCURRENT_SESSIONS: 1 // KERNEL: GEMINI_1.5_FLASH // STACK: NODE_EXPRESS_VANILLA_JS</p>
-        </footer>
+            <footer style="margin-top: auto; padding-top: 20px; border-top: 1px dashed var(--border-color); font-size: 0.8rem; color: var(--fg-muted);">
+                <p>CONCURRENT_SESSIONS: 1 // KERNEL: GEMINI_1.5_FLASH // STACK: VITE_TYPESCRIPT</p>
+            </footer>
+        </div>
     </div>
-
-    <script src="script.js"></script>
+    <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
