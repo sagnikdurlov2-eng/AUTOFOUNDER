@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const axios = require('axios');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
@@ -14,8 +14,8 @@ const PORT = process.env.PORT || 5001;
 // MongoDB Connection
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/ai-startup-builder';
 mongoose.connect(MONGO_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('\x1b[32m[SYSTEM] NEURAL_DB_CONNECTED\x1b[0m'))
+  .catch(err => console.error('\x1b[31m[ERROR] DB_SYNC_FAILURE\x1b[0m', err));
 
 // Schema
 const StartupSchema = new mongoose.Schema({
@@ -31,19 +31,41 @@ app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
 
-// Gemini API Configuration
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+// Gemini SDK Setup
+const apiKey = process.env.GEMINI_API_KEY;
+const genAI = new GoogleGenerativeAI(apiKey || "");
+
+// Neural Generation Logic with Fallbacks
+async function generateWithFallback(prompt) {
+  const modelsToTry = ["gemini-1.5-flash", "gemini-1.5-flash-latest", "gemini-1.5-pro", "gemini-pro"];
+  let lastError = null;
+
+  for (const modelName of modelsToTry) {
+    try {
+      console.log(`\x1b[33m[UPLINK] Attempting connection: ${modelName}...\x1b[0m`);
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+      console.log(`\x1b[32m[SUCCESS] Neural link established via ${modelName}\x1b[0m`);
+      return text;
+    } catch (error) {
+      lastError = error;
+      console.log(`\x1b[31m[FAIL] ${modelName} unavailable. Trying next...\x1b[0m`);
+    }
+  }
+  throw lastError;
+}
 
 app.post('/api/generate', async (req, res) => {
   const { idea } = req.body;
 
+  console.log(`\n\x1b[35m[INCOMING_SIGNAL] Idea: ${idea}\x1b[0m`);
+
   if (!idea) {
-    return res.status(400).json({ error: 'Idea is required' });
+    return res.status(400).json({ error: 'NEURAL_ERROR: EMPTY_INPUT' });
   }
 
   const prompt = `You are a team of AI startup experts working together:
-
 1. Idea Validator
 2. Market Analyst
 3. UI/UX Designer
@@ -58,58 +80,42 @@ Instructions:
 * Make output sound like real startup thinking
 
 Respond EXACTLY in this format:
-
 VALIDATION:
 ...
-
 MARKET:
 ...
-
 UI:
 ...
-
 CODE:
 ...
-
 PITCH:
 ...`;
 
   try {
-    const response = await axios.post(GEMINI_URL, {
-      contents: [
-        {
-          parts: [
-            {
-              text: prompt,
-            },
-          ],
-        },
-      ],
-    });
+    const responseText = await generateWithFallback(prompt);
+    console.log(`\x1b[32m[DOWNLINK] Processing neural response...\x1b[0m`);
 
-    const result = response.data.candidates[0].content.parts[0].text;
-    
     // Save to MongoDB
     try {
-      await Startup.create({ idea, result });
+      await Startup.create({ idea, result: responseText });
     } catch (saveError) {
-      console.error('Failed to save to MongoDB:', saveError.message);
+      console.error('\x1b[31m[ERROR] DATA_VAULT_WRITE_FAILURE\x1b[0m');
     }
 
-    res.send(result);
+    res.send(responseText);
   } catch (error) {
-    console.error('Gemini API Error:', error.response?.data || error.message);
+    console.log(`\x1b[41m\x1b[37m[NEURAL_CRASH] CRITICAL_FAILURE:\x1b[0m`);
+    console.error('\x1b[31mMessage:\x1b[0m', error.message);
     res.status(500).json({ 
-      error: 'Failed to generate startup concept',
-      details: error.response?.data || error.message 
+      error: 'NEURAL_LINK_DROPPED',
+      details: error.message 
     });
   }
 });
 
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`\n\x1b[32m========================================`);
+  console.log(`   AI STARTUP BUILDER - SELF-HEALING CORE `);
+  console.log(`   PORT: ${PORT} | STATUS: ACTIVE         `);
+  console.log(`========================================\x1b[0m\n`);
 });

@@ -69,11 +69,36 @@ export default function StartupBuilder() {
     })));
 
     try {
+      const logMessages = [
+        "[SYSTEM] Initializing neural link...",
+        "[VALIDATOR] Checking market viability...",
+        "[VALIDATOR] Running risk assessment...",
+        "[MARKET] Scraping competitor data...",
+        "[MARKET] Analyzing target demographics...",
+        "[UI] Drafting wireframes...",
+        "[UI] Selecting color palette (Neon Green/Black)...",
+        "[DEV] Initializing Git repository...",
+        "[DEV] Writing core business logic...",
+        "[PITCH] Crafting elevator pitch...",
+        "[SYSTEM] Compiling final report..."
+      ];
+
       for (let i = 0; i < AGENTS.length; i++) {
         setLogs(prev => prev.map((l, idx) => 
           idx === i ? { ...l, status: 'loading' } : l
         ));
-        await new Promise(resolve => setTimeout(resolve, 1200 + Math.random() * 800));
+        
+        // Show sub-logs for each agent
+        for (let j = 0; j < 2; j++) {
+          const msgIdx = i * 2 + j;
+          if (logMessages[msgIdx]) {
+             setLogs(prev => prev.map((l, idx) => 
+               idx === i ? { ...l, message: logMessages[msgIdx] } : l
+             ));
+          }
+          await new Promise(resolve => setTimeout(resolve, 800));
+        }
+
         setLogs(prev => prev.map((l, idx) => 
           idx === i ? { ...l, status: 'completed' } : l
         ));
@@ -199,38 +224,49 @@ export default function StartupBuilder() {
           )}
         </AnimatePresence>
 
-        {/* Simulation Logs */}
+        {/* Neural Link Console */}
         {(isLoading || logs.length > 0) && !results && (
-          <section className="space-y-6 max-w-4xl mx-auto">
-            <div className="flex items-center gap-4">
-              <div className="h-[1px] flex-1 bg-[#2a2a3a]"></div>
-              <h3 className="text-xs font-accent text-[#6b7280] uppercase tracking-[0.4em]">Active_Subprocesses</h3>
-              <div className="h-[1px] flex-1 bg-[#2a2a3a]"></div>
+          <section className="max-w-4xl mx-auto space-y-4">
+            <div className="flex items-center justify-between px-2">
+              <h3 className="text-[10px] font-accent text-[#00ff88] uppercase tracking-[0.4em] flex items-center gap-2">
+                <TerminalIcon className="w-3 h-3" />
+                NEURAL_LINK_CONSOLE_V2.0
+              </h3>
+              <span className="text-[10px] font-accent text-[#2a2a3a]">ENCRYPTION: AES-256</span>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              {logs.map((log, i) => (
-                <motion.div
-                  key={log.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className={`p-4 bg-[#12121a] border border-[#2a2a3a] cyber-chamfer-sm transition-all duration-500 ${
-                    log.status === 'completed' ? 'border-[#00ff88]/40 bg-[#00ff88]/5' : 
-                    log.status === 'loading' ? 'border-[#00ff88] shadow-[0_0_10px_rgba(0,255,136,0.2)]' : 'opacity-40'
-                  }`}
-                >
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-accent text-[10px] text-[#6b7280]">{log.agent}</span>
-                      {log.status === 'loading' && <div className="w-1.5 h-1.5 bg-[#00ff88] rounded-full animate-pulse"></div>}
-                    </div>
-                    <p className={`text-[10px] leading-tight ${log.status === 'completed' ? 'text-[#00ff88]' : 'text-[#e0e0e0]'}`}>
-                      {log.message}
-                    </p>
+            <div className="bg-[#0a0a0f] border border-[#00ff88]/20 cyber-chamfer p-6 font-accent text-[11px] leading-relaxed relative overflow-hidden group">
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#00ff88]/50 to-transparent animate-scanline"></div>
+              
+              <div className="space-y-2 h-[200px] overflow-y-auto custom-scrollbar">
+                {logs.filter(l => l.status !== 'pending').map((log, i) => (
+                  <motion.div 
+                    key={log.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="flex gap-4"
+                  >
+                    <span className="text-[#2a2a3a]">[{new Date().toLocaleTimeString()}]</span>
+                    <span className={log.status === 'completed' ? 'text-[#00ff88]' : 'text-[#00d4ff]'}>
+                      {log.agent}
+                    </span>
+                    <span className="text-[#e0e0e0] flex-1">{log.message}</span>
+                    {log.status === 'loading' && <span className="animate-blink">_</span>}
+                  </motion.div>
+                ))}
+                
+                {isLoading && logs.every(l => l.status === 'completed') && (
+                  <div className="text-[#ff00ff] animate-pulse">
+                    [SYSTEM] FINALIZING_NEURAL_CONSTRUCT...
                   </div>
-                </motion.div>
-              ))}
+                )}
+              </div>
+
+              {/* Decorative HUD corners */}
+              <div className="absolute top-2 left-2 w-2 h-2 border-t border-l border-[#00ff88]/40"></div>
+              <div className="absolute top-2 right-2 w-2 h-2 border-t border-r border-[#00ff88]/40"></div>
+              <div className="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-[#00ff88]/40"></div>
+              <div className="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-[#00ff88]/40"></div>
             </div>
           </section>
         )}
