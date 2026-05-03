@@ -1,33 +1,42 @@
 # Auto-Founder AI 🚀
 
-Build your startup from a single idea using the power of Gemini AI and a team of virtual agents.
+An automated startup architect that generates a comprehensive roadmap from a single idea using Gemini 1.5 Flash.
 
-## Setup Instructions
+## Project Structure
+This project is divided into two main components:
 
-1. **Install Dependencies:**
-   ```bash
-   npm install
-   ```
+- **`/backend`**: Express + TypeScript server handling API logic and Gemini integration.
+- **`/frontend`**: Vite + TypeScript application with a Brutalist Terminal UI.
 
-2. **Configure Environment Variables:**
-   - Rename `.env.example` to `.env`.
-   - Add your [Google Gemini API Key](https://aistudio.google.com/app/apikey) to the `GEMINI_API_KEY` field.
+## Setup & Running
 
-3. **Start the Application:**
-   ```bash
-   npm run dev
-   ```
+### 1. Clone the repository
+```bash
+git clone https://github.com/sagnikdurlov2-eng/AUTOFOUNDER.git
+cd AUTOFOUNDER
+```
 
-4. **Access the App:**
-   Open your browser and navigate to `http://localhost:3000`.
+### 2. Configure Backend
+```bash
+cd backend
+npm install
+# Create a .env file with your GEMINI_API_KEY
+npm run dev
+```
+
+### 3. Configure Frontend
+```bash
+cd ../frontend
+npm install
+npm run dev
+```
 
 ## Features
-- **Agent Simulation:** Watch virtual experts (Validator, Market Analyst, etc.) process your idea in real-time.
-- **Structured Output:** Get detailed cards for Validation, Market Analysis, UI Design, Code, and Pitch.
-- **Copy Code:** Quickly copy the generated code snippets or architecture.
-- **Dark Neon UI:** Sleek, modern interface designed for founders.
+- **Brutalist Terminal UI**: High-contrast, hacker-style interface.
+- **TypeScript Everywhere**: Type-safe frontend and backend.
+- **Real-time Simulation**: Watch AI agents build your startup step-by-step.
+- **Gemini 1.5 Flash**: Powered by Google's latest high-speed model.
 
 ## Tech Stack
-- **Backend:** Node.js, Express
-- **Frontend:** Vanilla JS, CSS (Dark Theme), HTML
-- **AI:** Google Gemini 1.5 Flash
+- **Backend**: Node.js, Express, TypeScript, Gemini SDK
+- **Frontend**: Vite, TypeScript, Vanilla CSS
