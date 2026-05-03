@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Rocket, 
-  Search, 
   ShieldCheck, 
   BarChart3, 
   Layout, 
@@ -13,7 +12,11 @@ import {
   CheckCircle2,
   Copy,
   AlertCircle,
-  Loader2
+  Loader2,
+  Terminal as TerminalIcon,
+  Cpu,
+  Globe,
+  Zap
 } from "lucide-react";
 
 type AgentLog = {
@@ -24,11 +27,11 @@ type AgentLog = {
 };
 
 const AGENTS = [
-  { id: 'validator', name: 'Validator Agent', icon: ShieldCheck, message: 'Checking idea viability...' },
-  { id: 'market', name: 'Market Agent', icon: BarChart3, message: 'Analyzing market trends...' },
-  { id: 'ui', name: 'UI Agent', icon: Layout, message: 'Designing user interface...' },
-  { id: 'dev', name: 'Dev Agent', icon: Code2, message: 'Generating core codebase...' },
-  { id: 'pitch', name: 'Pitch Agent', icon: Presentation, message: 'Preparing investor pitch...' },
+  { id: 'validator', name: 'SYSTEM_VALIDATOR', icon: ShieldCheck, message: 'VERIFYING IDEA VIABILITY...' },
+  { id: 'market', name: 'MARKET_ANALYZER', icon: BarChart3, message: 'SCANNING SECTOR TRENDS...' },
+  { id: 'ui', name: 'INTERFACE_ARCHITECT', icon: Layout, message: 'MAPPING NEURAL UX...' },
+  { id: 'dev', name: 'CORE_DEVELOPER', icon: Code2, message: 'COMPILING SOURCE CODE...' },
+  { id: 'pitch', name: 'STRATEGIC_PITCHER', icon: Presentation, message: 'GENERATING PITCH DECK...' },
 ];
 
 export default function StartupBuilder() {
@@ -37,6 +40,19 @@ export default function StartupBuilder() {
   const [logs, setLogs] = useState<AgentLog[]>([]);
   const [results, setResults] = useState<{ [key: string]: string } | null>(null);
   const [error, setError] = useState("");
+  const [typedSubheading, setTypedSubheading] = useState("");
+  
+  const fullSubheading = "CONVERTING RAW CONCEPTS INTO NEURAL STARTUP ARCHITECTURES_";
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      setTypedSubheading(fullSubheading.slice(0, i));
+      i++;
+      if (i > fullSubheading.length) clearInterval(interval);
+    }, 50);
+    return () => clearInterval(interval);
+  }, []);
 
   const runSimulation = async () => {
     if (!idea.trim()) return;
@@ -45,44 +61,36 @@ export default function StartupBuilder() {
     setResults(null);
     setError("");
     
-    // Initialize logs
-    const initialLogs: AgentLog[] = AGENTS.map(a => ({
+    setLogs(AGENTS.map(a => ({
       id: a.id,
       agent: a.name,
       message: a.message,
       status: 'pending'
-    }));
-    setLogs(initialLogs);
+    })));
 
     try {
-      // Simulate agent thinking with delays
       for (let i = 0; i < AGENTS.length; i++) {
         setLogs(prev => prev.map((l, idx) => 
           idx === i ? { ...l, status: 'loading' } : l
         ));
-        
-        // Random delay for simulation effect
-        await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
-        
+        await new Promise(resolve => setTimeout(resolve, 1200 + Math.random() * 800));
         setLogs(prev => prev.map((l, idx) => 
           idx === i ? { ...l, status: 'completed' } : l
         ));
       }
 
-      // Call Backend API
       const response = await fetch('http://localhost:5001/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ idea }),
       });
 
-      if (!response.ok) throw new Error('Failed to generate startup plan');
+      if (!response.ok) throw new Error('CONNECTION_FAILURE: NEURAL_LINK_DROPPED');
 
       const data = await response.text();
-      const parsedResults = parseResponse(data);
-      setResults(parsedResults);
+      setResults(parseResponse(data));
     } catch (err: any) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(err.message || "SYSTEM_ERROR: UNKNOWN_EXCEPTION");
     } finally {
       setIsLoading(false);
     }
@@ -91,11 +99,8 @@ export default function StartupBuilder() {
   const parseResponse = (text: string) => {
     const sections = ['VALIDATION', 'MARKET', 'UI', 'CODE', 'PITCH'];
     const result: { [key: string]: string } = {};
-    
     let currentSection = "";
-    const lines = text.split('\n');
-
-    lines.forEach(line => {
+    text.split('\n').forEach(line => {
       const foundSection = sections.find(s => line.startsWith(`${s}:`));
       if (foundSection) {
         currentSection = foundSection;
@@ -104,79 +109,78 @@ export default function StartupBuilder() {
         result[currentSection] += line + "\n";
       }
     });
-
     return result;
   };
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    // Could add a toast here
   };
 
   return (
-    <main className="min-h-screen bg-[#0f172a] text-slate-100 p-6 md:p-12 selection:bg-blue-500/30">
-      {/* Background Glow */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full animate-pulse-slow"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
-      </div>
-
-      <div className="max-w-5xl mx-auto space-y-12">
+    <main className="min-h-screen bg-[#0a0a0f] bg-circuit text-[#e0e0e0] font-body selection:bg-[#00ff88]/30">
+      <div className="max-w-6xl mx-auto px-6 py-16 md:py-24 space-y-16">
+        
         {/* Hero Section */}
-        <header className="text-center space-y-4">
+        <header className="text-center space-y-6 relative">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium mb-4">
-              <Rocket className="w-4 h-4" />
-              <span>Next Gen Startup Builder</span>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-[#00ff88]/5 border border-[#00ff88]/20 text-[#00ff88] text-xs font-accent tracking-[0.3em] uppercase mb-6 cyber-chamfer-sm">
+              <Cpu className="w-4 h-4" />
+              <span>NEURAL_GRID_ACTIVE</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-              AI <span className="neon-text">Startup Builder</span>
+            
+            <h1 
+              className="text-6xl md:text-8xl font-heading font-black uppercase tracking-tighter mb-4 glitch-effect"
+              data-text="AI_STARTUP_BUILDER"
+            >
+              AI_STARTUP_BUILDER
             </h1>
-            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-              Transform your raw ideas into fully documented startup concepts with our 
-              multi-agent AI workforce. Validated, analyzed, and ready to build.
-            </p>
+            
+            <div className="h-6 flex justify-center items-center">
+              <p className="text-sm md:text-base text-[#00ff88] font-accent tracking-widest uppercase">
+                {typedSubheading}
+                <span className="inline-block w-2 h-4 bg-[#00ff88] ml-1 animate-blink"></span>
+              </p>
+            </div>
           </motion.div>
         </header>
 
         {/* Input Section */}
-        <section className="relative z-10">
+        <section className="max-w-3xl mx-auto">
           <motion.div 
-            className="glass rounded-2xl p-2 flex flex-col md:flex-row gap-2"
-            initial={{ opacity: 0, scale: 0.95 }}
+            className="relative group"
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <input 
-              type="text" 
-              placeholder="e.g. A marketplace for recycled rocket parts..."
-              className="flex-1 bg-transparent border-none outline-none px-6 py-4 text-lg focus:ring-0"
-              value={idea}
-              onChange={(e) => setIdea(e.target.value)}
-              disabled={isLoading}
-              onKeyDown={(e) => e.key === 'Enter' && runSimulation()}
-            />
-            <button 
-              onClick={runSimulation}
-              disabled={isLoading || !idea.trim()}
-              className="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 text-white px-8 py-4 rounded-xl font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20"
-            >
-              {isLoading ? (
-                <>
+            <div className="absolute -inset-1 bg-gradient-to-r from-[#00ff88] to-[#00d4ff] opacity-20 blur group-focus-within:opacity-40 transition-opacity cyber-chamfer"></div>
+            <div className="relative bg-[#12121a] cyber-chamfer p-1 flex items-center border border-[#2a2a3a]">
+              <span className="pl-6 text-[#00ff88] font-accent text-xl">{'>'}</span>
+              <input 
+                type="text" 
+                placeholder="ENTER_STARTUP_CONCEPT_HERE..."
+                className="flex-1 bg-transparent border-none outline-none px-4 py-5 text-lg font-accent tracking-wider text-[#00ff88] placeholder:text-[#2a2a3a] focus:ring-0"
+                value={idea}
+                onChange={(e) => setIdea(e.target.value)}
+                disabled={isLoading}
+                onKeyDown={(e) => e.key === 'Enter' && runSimulation()}
+              />
+              <button 
+                onClick={runSimulation}
+                disabled={isLoading || !idea.trim()}
+                className="bg-[#00ff88] hover:brightness-110 disabled:grayscale text-[#0a0a0f] px-10 py-5 font-heading font-bold uppercase tracking-widest cyber-chamfer-sm transition-all flex items-center gap-3 active:scale-95"
+              >
+                {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Building...</span>
-                </>
-              ) : (
-                <>
-                  <Rocket className="w-5 h-5" />
-                  <span>Build Startup</span>
-                </>
-              )}
-            </button>
+                ) : (
+                  <Zap className="w-5 h-5" />
+                )}
+                <span>INITIALIZE</span>
+              </button>
+            </div>
           </motion.div>
         </section>
 
@@ -187,41 +191,44 @@ export default function StartupBuilder() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl flex items-center gap-3"
+              className="bg-red-500/10 border border-red-500/30 text-red-400 p-4 font-accent text-sm cyber-chamfer-sm flex items-center gap-3 max-w-xl mx-auto"
             >
               <AlertCircle className="w-5 h-5" />
-              <p>{error}</p>
+              <span>{error}</span>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Simulation Logs */}
         {(isLoading || logs.length > 0) && !results && (
-          <section className="space-y-4">
-            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-widest px-1">Active Agents</h3>
+          <section className="space-y-6 max-w-4xl mx-auto">
+            <div className="flex items-center gap-4">
+              <div className="h-[1px] flex-1 bg-[#2a2a3a]"></div>
+              <h3 className="text-xs font-accent text-[#6b7280] uppercase tracking-[0.4em]">Active_Subprocesses</h3>
+              <div className="h-[1px] flex-1 bg-[#2a2a3a]"></div>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               {logs.map((log, i) => (
                 <motion.div
                   key={log.id}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className={`p-4 rounded-xl glass border-l-4 transition-all duration-500 ${
-                    log.status === 'completed' ? 'border-l-green-500 opacity-60' : 
-                    log.status === 'loading' ? 'border-l-blue-500' : 'border-l-slate-700 opacity-30'
+                  className={`p-4 bg-[#12121a] border border-[#2a2a3a] cyber-chamfer-sm transition-all duration-500 ${
+                    log.status === 'completed' ? 'border-[#00ff88]/40 bg-[#00ff88]/5' : 
+                    log.status === 'loading' ? 'border-[#00ff88] shadow-[0_0_10px_rgba(0,255,136,0.2)]' : 'opacity-40'
                   }`}
                 >
-                  <div className="flex items-center gap-3 mb-2">
-                    {log.status === 'loading' ? (
-                      <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
-                    ) : log.status === 'completed' ? (
-                      <CheckCircle2 className="w-4 h-4 text-green-400" />
-                    ) : (
-                      <div className="w-4 h-4 rounded-full border border-slate-600" />
-                    )}
-                    <span className="font-bold text-xs">{log.agent}</span>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-accent text-[10px] text-[#6b7280]">{log.agent}</span>
+                      {log.status === 'loading' && <div className="w-1.5 h-1.5 bg-[#00ff88] rounded-full animate-pulse"></div>}
+                    </div>
+                    <p className={`text-[10px] leading-tight ${log.status === 'completed' ? 'text-[#00ff88]' : 'text-[#e0e0e0]'}`}>
+                      {log.message}
+                    </p>
                   </div>
-                  <p className="text-xs text-slate-400">{log.message}</p>
                 </motion.div>
               ))}
             </div>
@@ -233,47 +240,38 @@ export default function StartupBuilder() {
           <motion.section 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
           >
-            {/* Validation Card */}
             <ResultCard 
-              title="AI Validator" 
+              title="SYSTEM_VALIDATION" 
               icon={ShieldCheck} 
               content={results.VALIDATION} 
-              color="blue"
+              accent="green"
             />
-            
-            {/* Market Card */}
             <ResultCard 
-              title="Market Intelligence" 
+              title="MARKET_INTELLIGENCE" 
               icon={BarChart3} 
               content={results.MARKET} 
-              color="purple"
+              accent="cyan"
             />
-
-            {/* UI Concept Card */}
             <ResultCard 
-              title="UI Concept" 
+              title="INTERFACE_CONCEPT" 
               icon={Layout} 
               content={results.UI} 
-              color="pink"
+              accent="magenta"
             />
-
-            {/* Pitch Card */}
             <ResultCard 
-              title="Investor Pitch" 
+              title="INVESTOR_PITCH" 
               icon={Presentation} 
               content={results.PITCH} 
-              color="orange"
+              accent="green"
             />
-
-            {/* Code Card - Full Width */}
             <div className="md:col-span-2">
               <ResultCard 
-                title="Generated Code" 
+                title="SOURCE_CODE_GEN" 
                 icon={Code2} 
                 content={results.CODE} 
-                color="green"
+                accent="cyan"
                 isCode
                 onCopy={() => copyToClipboard(results.CODE)}
               />
@@ -285,13 +283,17 @@ export default function StartupBuilder() {
   );
 }
 
-function ResultCard({ title, icon: Icon, content, color, isCode = false, onCopy }: any) {
-  const colorMap: any = {
-    blue: "text-blue-400 border-blue-500/20",
-    purple: "text-purple-400 border-purple-500/20",
-    pink: "text-pink-400 border-pink-500/20",
-    orange: "text-orange-400 border-orange-500/20",
-    green: "text-green-400 border-green-500/20",
+function ResultCard({ title, icon: Icon, content, accent, isCode = false, onCopy }: any) {
+  const accentColors: any = {
+    green: "text-[#00ff88] border-[#00ff88]/30 hover:border-[#00ff88]",
+    magenta: "text-[#ff00ff] border-[#ff00ff]/30 hover:border-[#ff00ff]",
+    cyan: "text-[#00d4ff] border-[#00d4ff]/30 hover:border-[#00d4ff]",
+  };
+
+  const glows: any = {
+    green: "shadow-[0_0_15px_rgba(0,255,136,0.1)]",
+    magenta: "shadow-[0_0_15px_rgba(255,0,255,0.1)]",
+    cyan: "shadow-[0_0_15px_rgba(0,212,255,0.1)]",
   };
 
   return (
@@ -299,20 +301,19 @@ function ResultCard({ title, icon: Icon, content, color, isCode = false, onCopy 
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="glass rounded-2xl p-6 flex flex-col h-full border-t-2 border-t-transparent hover:border-t-blue-500/50 transition-all duration-500"
+      className={`bg-[#12121a] cyber-chamfer p-8 flex flex-col h-full border ${accentColors[accent]} transition-all duration-500 group ${glows[accent]}`}
     >
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg bg-slate-800 ${colorMap[color].split(' ')[0]}`}>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <div className={`p-2.5 bg-[#0a0a0f] border ${accentColors[accent]} cyber-chamfer-sm`}>
             <Icon className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-lg">{title}</h3>
+          <h3 className="font-heading font-bold text-sm tracking-[0.2em] uppercase">{title}</h3>
         </div>
         {isCode && (
           <button 
             onClick={onCopy}
-            className="p-2 hover:bg-white/5 rounded-lg transition-colors text-slate-400 hover:text-white"
-            title="Copy Code"
+            className="p-2 hover:bg-[#00ff88]/10 rounded-lg transition-colors text-[#6b7280] hover:text-[#00ff88]"
           >
             <Copy className="w-4 h-4" />
           </button>
@@ -320,16 +321,26 @@ function ResultCard({ title, icon: Icon, content, color, isCode = false, onCopy 
       </div>
 
       {isCode ? (
-        <div className="relative group">
-          <pre className="bg-[#0b1121] p-4 rounded-xl text-sm font-mono text-blue-300 overflow-x-auto border border-white/5 leading-relaxed">
+        <div className="relative">
+          <div className="absolute top-0 right-0 p-2 text-[10px] font-accent text-[#2a2a3a] uppercase">TS_STRICT</div>
+          <pre className="bg-[#0a0a0f] p-6 text-xs font-body text-[#00d4ff] overflow-x-auto border border-[#2a2a3a] leading-relaxed cyber-chamfer-sm">
             <code>{content.trim()}</code>
           </pre>
         </div>
       ) : (
-        <div className="text-slate-400 text-sm leading-relaxed whitespace-pre-wrap">
+        <div className="text-[#e0e0e0]/80 text-sm font-body leading-relaxed whitespace-pre-wrap relative pl-4 border-l-2 border-[#2a2a3a]">
+          <span className="absolute top-0 left-[-2px] w-0.5 h-4 bg-[#00ff88]"></span>
           {content.trim()}
         </div>
       )}
+      
+      <div className="mt-8 flex justify-end">
+        <div className="flex gap-1">
+          <div className="w-1 h-1 bg-[#2a2a3a]"></div>
+          <div className="w-4 h-1 bg-[#2a2a3a]"></div>
+          <div className="w-8 h-1 bg-[#00ff88]/20 group-hover:bg-[#00ff88] transition-colors"></div>
+        </div>
+      </div>
     </motion.div>
   );
 }
